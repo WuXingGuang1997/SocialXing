@@ -1,28 +1,12 @@
-import { createServerClient, type CookieOptions } from '@supabase/ssr';
-import { cookies } from 'next/headers';
+import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
-
-async function createSupabaseRouteHandlerClient() {
-    const cookieStore = await cookies();
-    return createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        {
-            cookies: {
-                get(name: string) { return cookieStore.get(name)?.value },
-                set(name: string, value: string, options: CookieOptions) { cookieStore.set({ name, value, ...options }) },
-                remove(name: string, options: CookieOptions) { cookieStore.set({ name, value: '', ...options }) },
-            },
-        }
-    );
-}
 
 // POST: Aggiungere un like a un commento
 export async function POST(
     request: Request,
     { params }: { params: { commentId: string } }
 ) {
-    const supabase = await createSupabaseRouteHandlerClient();
+    const supabase = await createSupabaseServerClient();
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
@@ -51,13 +35,12 @@ export async function POST(
     return NextResponse.json(data, { status: 201 });
 }
 
-
 // DELETE: Rimuovere un like da un commento
 export async function DELETE(
     request: Request,
     { params }: { params: { commentId: string } }
 ) {
-    const supabase = await createSupabaseRouteHandlerClient();
+    const supabase = await createSupabaseServerClient();
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
