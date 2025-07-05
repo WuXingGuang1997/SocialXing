@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Media } from '@/types';
+import Image from 'next/image';
 
 interface PostImagesProps {
   media: (Media & { signedUrl: string })[];
@@ -45,10 +46,12 @@ export default function PostImages({ media }: PostImagesProps) {
           </button>
         </>
       )}
-      <img
+      <Image
         src={media[currentIndex].signedUrl}
         alt={`Post image ${currentIndex + 1}`}
-        className="w-full h-full object-cover"
+        fill
+        className="object-cover"
+        priority={currentIndex === 0}
       />
        {media.length > 1 && (
         <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex space-x-2">

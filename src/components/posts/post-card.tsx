@@ -3,16 +3,12 @@
 import {
   Card,
   CardContent,
-  CardFooter,
   CardHeader,
 } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import Image from 'next/image';
-import { PostWithData } from '@/types'; // Creeremo questo tipo tra un attimo
 import Link from 'next/link'; // Importa Link
 import LikeButton from '@/components/posts/like-button';
 import { MessageCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import CommentSheet from './comment-sheet';
 import PostOptions from './post-options';
 import { formatDistanceToNow } from 'date-fns';
@@ -21,6 +17,7 @@ import PostImages from './post-images';
 import { useSession } from '../providers/session-provider';
 import { ComponentProps } from 'react';
 import LikesDialog from './likes-dialog';
+import { PostWithData } from '@/types';
 
 // Helper function per trasformare gli hashtag in link
 function linkifyHashtags(text: string): React.ReactNode[] {
