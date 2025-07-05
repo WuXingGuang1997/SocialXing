@@ -43,7 +43,7 @@ export default async function LikedPage() {
         return (
             <div className="text-center p-8">
                 <h2 className="text-2xl font-bold">Nessun post piaciuto</h2>
-                <p className="text-muted-foreground">Inizia a mettere "mi piace" ai post per vederli qui.</p>
+                <p className="text-muted-foreground">Inizia a mettere 'mi piace' ai post per vederli qui.</p>
             </div>
         );
     }

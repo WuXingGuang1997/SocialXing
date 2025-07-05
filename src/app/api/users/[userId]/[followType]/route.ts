@@ -1,28 +1,5 @@
-import { createServerClient, type CookieOptions } from '@supabase/ssr';
-import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
-
-// Ricreo la funzione helper per il client Supabase specifico per le Route Handler
-async function createSupabaseRouteHandlerClient() {
-    const cookieStore = cookies();
-    return createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        {
-            cookies: {
-                get(name: string) {
-                    return cookieStore.get(name)?.value;
-                },
-                set(name: string, value: string, options: CookieOptions) {
-                    cookieStore.set({ name, value, ...options });
-                },
-                remove(name: string, options: CookieOptions) {
-                    cookieStore.set({ name, value: '', ...options });
-                },
-            },
-        }
-    );
-}
+import { createSupabaseServerClient } from '@/lib/supabase/server';
 
 export async function GET(
     request: Request,
@@ -35,7 +12,7 @@ export async function GET(
         return NextResponse.json({ error: 'Parametri non validi' }, { status: 400 });
     }
 
-    const supabase = await createSupabaseRouteHandlerClient();
+    const supabase = await createSupabaseServerClient();
     
     const fromTable = 'followers';
     const selectId = followType === 'followers' ? 'follower_id' : 'following_id';
@@ -56,8 +33,8 @@ export async function GET(
         return NextResponse.json([], { status: 200 });
     }
     
-    // Il cast (as any) è una soluzione pragmatica per un cavillo di TypeScript qui
-    const userIds = idList.map(item => (item as any)[selectId]);
+    // Ora TypeScript sa che ogni item ha una chiave che corrisponde a `selectId`
+    const userIds = idList.map(item => (item as { [key: string]: string })[selectId]);
 
     // 2. Prendi i profili completi usando la lista di ID
     const { data: profiles, error: profilesError } = await supabase

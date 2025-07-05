@@ -10,11 +10,6 @@ export const dynamic = 'force-dynamic';
 
 export const revalidate = 60; // Cache per 1 minuto
 
-// Funzione helper per le iniziali
-const getInitials = (name: string) => {
-  return name.slice(0, 2).toUpperCase();
-};
-
 type ProfilePageProps = {
   params: { username: string };
   searchParams: { [key: string]: string | string[] | undefined };
@@ -57,7 +52,7 @@ export default async function ProfilePage({ params: { username: identifier }, se
   }
 
   // Recupera i conteggi di follower e seguiti
-  const { data: followData, error: followError } = await supabase
+  const { data: followData } = await supabase
     .from('profiles')
     .select(`
       followers_count:followers!following_id(count),
@@ -66,13 +61,8 @@ export default async function ProfilePage({ params: { username: identifier }, se
     .eq('id', profile.id)
     .single();
   
-  if (followError) {
-    console.error('Errore nel recupero dei conteggi follow:', followError);
-    // Non bloccare la pagina per questo, usa 0 come default
-  }
-
   // Controlla se l'utente corrente sta seguendo questo profilo
-  const { data: isFollowingData, error: isFollowingError } = await supabase
+  const { data: isFollowingData } = await supabase
     .from('followers')
     .select('count')
     .eq('follower_id', currentUser?.id)
@@ -82,7 +72,7 @@ export default async function ProfilePage({ params: { username: identifier }, se
   const isFollowing = (isFollowingData?.count ?? 0) > 0;
 
   // Recupera il CONTEGGIO dei post creati dall'utente (sempre)
-  const { count: postsCount, error: countError } = await supabase
+  const { count: postsCount } = await supabase
     .from('posts')
     .select('*', { count: 'exact', head: true })
     .eq('user_id', profile.id);
@@ -121,21 +111,23 @@ export default async function ProfilePage({ params: { username: identifier }, se
     postsError = error;
   }
 
+
+  if (postsError) {
+    console.error("Errore nel recupero dei post:", postsError);
+    // Non bloccare, mostra la pagina senza post
+  }
+
   const postsWithSignedUrls: PostWithData[] = posts ? await Promise.all(
     posts.map(async (post) => {
-      const mediaWithSignedUrls = await Promise.all(
+      const mediaWithSignedUrls = post.media ? await Promise.all(
         (post.media as Media[]).map(async (m) => {
           const { data } = await supabase.storage.from('media').createSignedUrl(m.file_path, 3600);
           return { ...m, signedUrl: data?.signedUrl || '' };
         })
-      );
+      ) : [];
       return { ...post, media: mediaWithSignedUrls };
     })
   ) : [];
-
-  console.log('PROFILO TROVATO:', profile);
-  console.log('POST TROVATI DAL DB:', posts?.length);
-  console.log('POST CON URL FIRMATI:', postsWithSignedUrls.length);
 
   return (
     <main className="max-w-4xl mx-auto py-8 px-4">
@@ -153,7 +145,7 @@ export default async function ProfilePage({ params: { username: identifier }, se
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           {postsWithSignedUrls && postsWithSignedUrls.length > 0 ? (
             postsWithSignedUrls.map((post) => (
-              <PostCard key={post.id} post={post} currentUserId={currentUser?.id} />
+              <PostCard key={post.id} post={post} />
             ))
           ) : (
             <p className="col-span-full text-center text-muted-foreground">
