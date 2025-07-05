@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server';
 // POST: Aggiungere un like a un commento
 export async function POST(
     request: Request,
-    { params }: { params: { commentId: string } }
+    context: { params: { commentId: string } }
 ) {
     const supabase = await createSupabaseServerClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -13,7 +13,7 @@ export async function POST(
         return NextResponse.json({ error: 'Non autorizzato' }, { status: 401 });
     }
 
-    const commentId = params.commentId;
+    const { commentId } = context.params;
 
     const { data, error } = await supabase
         .from('comment_likes')
@@ -38,7 +38,7 @@ export async function POST(
 // DELETE: Rimuovere un like da un commento
 export async function DELETE(
     request: Request,
-    { params }: { params: { commentId: string } }
+    context: { params: { commentId: string } }
 ) {
     const supabase = await createSupabaseServerClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -47,7 +47,7 @@ export async function DELETE(
         return NextResponse.json({ error: 'Non autorizzato' }, { status: 401 });
     }
 
-    const commentId = params.commentId;
+    const { commentId } = context.params;
 
     const { error } = await supabase
         .from('comment_likes')
