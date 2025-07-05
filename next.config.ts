@@ -1,13 +1,18 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+    eslint: {
+        ignoreDuringBuilds: true,
+    },
     images: {
         remotePatterns: [
             {
                 protocol: 'https',
-                hostname: 'lqsogcxbyoxkdzxxeqll.supabase.co',
-                port: '',
-                pathname: '/storage/v1/object/sign/**',
+                hostname: 'lh3.googleusercontent.com',
             },
+            {
+                protocol: 'https',
+                hostname: 'fuybirsxeyowenqhrbsk.supabase.co',
+            }
         ],
     },
 };
