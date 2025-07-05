@@ -79,7 +79,7 @@ export default function LikesDialog({ postId, children, triggerClassName }: Like
               ))}
             </ul>
           ) : (
-            <p className="text-center py-4">Nessun "mi piace" ancora.</p>
+            <p className="text-center py-4">Nessun &quot;mi piace&quot; ancora.</p>
           )}
         </div>
       </DialogContent>
